@@ -10,6 +10,7 @@ namespace CollegeApplication.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class CollegeController : ControllerBase
     {
         private readonly ICollegeService _collegeService;
@@ -75,10 +76,10 @@ namespace CollegeApplication.Controllers
         {
             try
             {
-                if (id != college.CollegeId)
-                {
-                    return BadRequest();
-                }
+                //if (id != college.CollegeId)
+                //{
+                //    return BadRequest();
+                //}
 
                 var updateSuccessful = await _collegeService.UpdateCollegeAsync(college);
                 if (!updateSuccessful)
