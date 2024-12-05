@@ -10,6 +10,7 @@ namespace CollegeApplication.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class DepartmentController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;

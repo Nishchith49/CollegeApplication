@@ -52,7 +52,7 @@ namespace CollegeApplication.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DepartmentExists(department.DepartmentId))
+                if (!(await DepartmentExists(department.DepartmentId)))
                 {
                     return false;
                 }
@@ -78,9 +78,9 @@ namespace CollegeApplication.Service
             return true;
         }
 
-        private bool DepartmentExists(long id)
+        private Task<bool> DepartmentExists(long id)
         {
-            return _context.Departments.Any(e => e.DepartmentId == id);
+            return Task.FromResult(_context.Departments.Any(e => e.DepartmentId == id));
         }
     }
 }

@@ -1,3 +1,5 @@
+using AutoMapper;
+using CollegeApplication;
 using CollegeApplication.Entities;
 using CollegeApplication.IService;
 using CollegeApplication.Models;
@@ -67,7 +69,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 builder.Services.AddCors(options =>

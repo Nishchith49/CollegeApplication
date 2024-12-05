@@ -51,7 +51,7 @@ namespace CollegeApplication.Service
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CourseExists(course.CourseId))
+                if (!(await CourseExists(course.CourseId)))
                 {
                     return false;
                 }
@@ -72,9 +72,9 @@ namespace CollegeApplication.Service
             return true;
         }
 
-        private bool CourseExists(long id)
+        private Task<bool> CourseExists(long id)
         {
-            return _context.Courses.Any(e => e.CourseId == id);
+            return Task.FromResult(_context.Courses.Any(e => e.CourseId == id));
         }
     }
 }
