@@ -73,8 +73,8 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Configure CORS policy to allow only specific origins
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("https://yourfrontenddomain.com")  // Replace with your allowed domain
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.WithOrigins()  // Replace with your allowed domain
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
@@ -141,7 +141,7 @@ else
 //app.UseHttpsRedirection();
 
 // Apply CORS policy
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
