@@ -1,25 +1,32 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+# Use the official .NET 8 SDK image to build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["CollegeApplication.csproj", "."]
-RUN dotnet restore "./CollegeApplication.csproj"
-COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./CollegeApplication.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./CollegeApplication.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+# Set the working directory
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+# Copy the project files into the container
+COPY *.csproj ./
+
+# Restore the dependencies
+RUN dotnet restore
+
+# Copy the rest of the application code into the container
+COPY . ./
+
+# Publish the application
+RUN dotnet publish -c Release -o /app/publish
+
+# Use the official .NET 8 runtime image to run the application
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+
+# Set the working directory for the runtime container
+WORKDIR /app
+
+# Copy the published application from the build container
+COPY --from=build /app/publish .
+
+# Expose the port that the app will run on
+EXPOSE 80
+
+# Set the entry point for the container to start the application
 ENTRYPOINT ["dotnet", "CollegeApplication.dll"]
