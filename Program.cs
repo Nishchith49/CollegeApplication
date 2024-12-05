@@ -138,7 +138,7 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // Apply CORS policy
 app.UseCors("AllowSpecificOrigin");
