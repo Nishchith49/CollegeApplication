@@ -4,7 +4,6 @@ using CollegeApplication.Entities;
 using CollegeApplication.IService;
 using CollegeApplication.Models;
 using CollegeApplication.Service;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,16 +13,16 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Add services to the container.
 builder.Services.AddControllers();
 
-
+// Register DbContext and configure MySQL connection
 builder.Services.AddDbContext<CollegeContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), ServerVersion.Parse("8.0.31"))
     .EnableSensitiveDataLogging()
     .EnableDetailedErrors());
 
-
+// Configure Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 12;
@@ -35,7 +34,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<CollegeContext>()
     .AddDefaultTokenProviders();
 
-
+// Configure JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,26 +60,26 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-
+// Configure Authorization policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin"));
     options.AddPolicy("UserPolicy", policy => policy.RequireRole("User"));
 });
 
-
+// Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-
+// Configure CORS policy to allow only specific origins
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("https://localhost:7150")
+    options.AddPolicy("AllowAllOrigins",
+        builder => builder.WithOrigins()  // Replace with your allowed domain
                           .AllowAnyHeader()
-                          .AllowAnyMethod()
-                          .AllowCredentials());
+                          .AllowAnyMethod());
 });
 
+// Register Swagger for API documentation
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "College Application API", Version = "v1" });
@@ -109,7 +108,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
+// Register services for your application (Email, College, Course, Department, Enrollment, Student)
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ICollegeService, CollegeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -117,11 +116,14 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
+// Add health checks
 builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
 app.MapHealthChecks("/health");
 
-//  the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -136,13 +138,15 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-app.UseCors("AllowSpecificOrigin");
+// Apply CORS policy
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Map controllers
 app.MapControllers();
 
 app.Run();
